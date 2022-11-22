@@ -236,7 +236,7 @@
 	FROM people
 	WHERE name LIKE '_r%'
 
-	#Get the names of people whose names don't start with A. The pattern you need is 'A%'.
+--Get the names of people whose names don't start with A. The pattern you need is 'A%'.
 	SELECT name
 	FROM people
 	WHERE name NOT LIKE 'A%'
@@ -304,11 +304,11 @@
 	SELECT (10 / 3) AS result;
 
 --It's AS simple AS aliasing
-# Get the title and net profit (the amount a film grossed, minus its budget) for all films. Alias the net profit as net_profit.
+--Get the title and net profit (the amount a film grossed, minus its budget) for all films. Alias the net profit as net_profit.
 	SELECT title, (gross - budget) AS net_profit
 	FROM films;
 
-	#Get the title and duration in hours for all films. The duration is in minutes, so you'll need to divide by 60.0 to get the duration in hours. Alias the duration in hours as duration_hours
+--Get the title and duration in hours for all films. The duration is in minutes, so you'll need to divide by 60.0 to get the duration in hours. Alias the duration in hours as duration_hours
 	SELECT title,duration/60.0 AS duration_hours
 	FROM films;
 
