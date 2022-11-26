@@ -45,7 +45,12 @@ all integral skills for any aspiring data professional or researcher. Through in
         * Intermediate Spreadsheets
         * Pivot Tables in Spreadsheets
         * Data Visualization in Spreadsheets
-        
+            * Business Intelligence and Using Dashboards
+            * Efficient Column Charts
+            * Dashboard Controls
+            * Other Charts for Your Dashboards..(histogram, scatterplot, line, sparkline)
+            * Conditional Formatting
+
 # 2. Intro to SQL for Data Science - [DataCamp](https://www.datacamp.com/courses/intro-to-sql-for-data-science)
 
 Course Description:
