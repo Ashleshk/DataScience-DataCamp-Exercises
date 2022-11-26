@@ -6,7 +6,7 @@ all integral skills for any aspiring data professional or researcher. Through in
 
 
 # 1. Data Analysis in SpreadSheets
-* **Predefined functions**
+* **A. Predefined functions**
     * This chapter introduces a very useful feature in Google Sheets: predefined functions. You'll use these functions to solve complex problems without having to worry about specific calculations. We’ll cover a lot of predefined functions, including functions for numbers, functions for strings, and functions for dates.
         * First function - ROUND
         * Function composition - SQRT
@@ -39,7 +39,13 @@ all integral skills for any aspiring data professional or researcher. Through in
         * Horizontal lookup - HLOOKUP
         * Weighted average - SUMPRODUCT, HLOOKUP
 
-
+*   **DataCamp_Spreadsheet_Fundamentals**
+    * Here you can find the solutions of the following DataCamp Courses: 😎🤩
+        * Data Analysis in Spreadsheets
+        * Intermediate Spreadsheets
+        * Pivot Tables in Spreadsheets
+        * Data Visualization in Spreadsheets
+        
 # 2. Intro to SQL for Data Science - [DataCamp](https://www.datacamp.com/courses/intro-to-sql-for-data-science)
 
 Course Description:
