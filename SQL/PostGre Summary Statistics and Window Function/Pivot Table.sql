@@ -171,12 +171,64 @@ Cleaning up results
 Returning to the breakdown of Scandinavian awards you previously made, you want to clean up the results by replacing the nulls with meaningful text.
 */
 
+--Turn the nulls in the Country column to All countries, and the nulls in the Gender column to All genders.10000M
+SELECT
+  -- Replace the nulls in the columns with meaningful text
+  COALESCE(Country, 'All countries') AS Country,
+  COALESCE(Gender, 'All genders') AS Gender,
+  COUNT(*) AS Awards
+FROM Summer_Medals
+WHERE
+  Year = 2004
+  AND Medal = 'Gold'
+  AND Country IN ('DEN', 'NOR', 'SWE')
+GROUP BY ROLLUP(Country, Gender)
+ORDER BY Country ASC, Gender ASC;
 
 
+/*
+Summarizing results
+After ranking each country in the 2000 Olympics by gold medals awarded, you want to return the top 3 countries in one row, as a comma-separated string. In other words, turn this:
+
+| Country | Rank |
+|---------|------|
+| USA     | 1    |
+| RUS     | 2    |
+| AUS     | 3    |
+| ...     | ...  |
+
+into this:
+
+USA, RUS, AUS
+
+*/
 
 
+/*
+Return the top 3 countries by medals awarded as one comma-separated string.
+*/
 
+WITH Country_Medals AS (
+  SELECT
+    Country,
+    COUNT(*) AS Medals
+  FROM Summer_Medals
+  WHERE Year = 2000
+    AND Medal = 'Gold'
+  GROUP BY Country),
 
+  Country_Ranks AS (
+  SELECT
+    Country,
+    RANK() OVER (ORDER BY Medals DESC) AS Rank
+  FROM Country_Medals
+  ORDER BY Rank ASC)
+
+-- Compress the countries column
+SELECT STRING_AGG(Country, ', ')
+FROM Country_Ranks
+-- Select only the top three ranks
+WHERE RANK <= 3;
 
 
 
