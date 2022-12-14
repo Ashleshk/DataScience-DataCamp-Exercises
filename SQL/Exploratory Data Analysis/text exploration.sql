@@ -122,7 +122,20 @@ SELECT split_part(street, ' ',1) AS street_name,
  GROUP BY street_name
  ORDER BY count DESC
  LIMIT 20;
+/*
+Select the first 50 characters of description with '...' concatenated on the end where the length() of the description is greater than 50 characters. Otherwise just select the description as is.
+Select only descriptions that begin with the word 'I' and not the letter 'I'.
+    For example, you would want to select "I like using SQL!", but would not want to select "In this course we use SQL!".*/
 
+SELECT CASE WHEN length(description) > 50
+            THEN left(description, 50) || '...'
+       -- otherwise just select description
+       ELSE description
+       END
+  FROM evanston311
+ -- limit to descriptions that start with the word I
+ WHERE description LIKE 'I %'
+ ORDER BY description;
 
 
 
