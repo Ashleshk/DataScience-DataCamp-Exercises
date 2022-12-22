@@ -136,17 +136,54 @@ medium = cars[between]
 print(medium)
 
 
+########################################################
+##    Loop over list of lists
+
+'''Remember the house variable from the Intro to Python course? Have a look at its definition in the script. It's basically a list of lists, where each sublist contains the name and area of a room in your house.
+
+It's up to you to build a for loop from scratch this time!'''
+
+# house list of lists
+house = [["hallway", 11.25], 
+         ["kitchen", 18.0], 
+         ["living room", 20.0], 
+         ["bedroom", 10.75], 
+         ["bathroom", 9.50]]
+         
+# Build a for loop from scratch
+for index,room in enumerate(house):
+    print("the "+str(room[0])+" is "+str(room[1])+" sqm")
+
+'''Add column (1)
+In the video, Hugo showed you how to add the length of the country names of the brics DataFrame in a new column:
+
+for lab, row in brics.iterrows() :
+    brics.loc[lab, "name_length"] = len(row["country"])
+You can do similar things on the cars DataFrame.'''
 
 
+# Import cars data
+import pandas as pd
+
+cars = pd.read_csv('cars.csv', index_col = 0)
+
+# Code for loop that adds COUNTRY column
+for lab, row in cars.iterrows() :
+    cars.loc[lab, "COUNTRY"] = row["country"].upper()
+
+# Print cars
+print(cars)
 
 
+## better Way 
 
+# Import cars data
+import pandas as pd
+cars = pd.read_csv('cars.csv', index_col = 0)
 
-
-
-
-
-
+# Use .apply(str.upper)
+cars["COUNTRY"] = cars["country"].apply(str.upper)
+print(cars)
 
 
 
