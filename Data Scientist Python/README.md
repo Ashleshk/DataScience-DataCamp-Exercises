@@ -1,7 +1,10 @@
 # Data Scientist with Python
-@ DataCamp
+@ DataCamp - [Career Track Link](https://app.datacamp.com/learn/career-tracks/data-scientist-with-python?version=7)
 
 Learn Python for data science and gain the career-building skills you need to succeed as a data scientist, from data manipulation to machine learning!
+
+## Certificates
+* Certificates - [github](https://github.com/Ashleshk/CERTIFICATES/tree/master/DataCamp/Data%20Scientist%20in%20Python)
 
 ## Courses
 1. Introduction to Python
