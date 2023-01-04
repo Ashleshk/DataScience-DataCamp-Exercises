@@ -218,16 +218,53 @@ sns.jointplot(x="temp",
 plt.show()
 plt.clf()
 ```
+* Use a residual plot to check the appropriateness of the model.
+
+```python
+# Plot a jointplot showing the residuals
+sns.jointplot(x="temp",
+        y="total_rentals",
+        kind='resid',
+        data=df,
+        order=2)
+
+plt.show()
+plt.clf()
+```
 
 
+## Complex jointplots
+* Create a jointplot with a scatter plot comparing temp and casual riders.
+* Overlay a kdeplot on top of the scatter plot.
 
+```python
+# Create a jointplot of temp vs. casual riders
+# Include a kdeplot over the scatter plot
+g = sns.jointplot(x="temp",
+             y="casual",
+             kind='scatter',
+             data=df,
+             marginal_kws=dict(bins=10))
+g.plot_joint(sns.kdeplot)
+    
+plt.show()
+plt.clf()
+```
 
+* Build a similar plot for registered users.
 
+```python
+# Replicate the above plot but only for registered riders
+g = sns.jointplot(x="temp",
+             y="registered",
+             kind='scatter',
+             data=df,
+             marginal_kws=dict(bins=10))
+g.plot_joint(sns.kdeplot)
 
-
-
-
-
+plt.show()
+plt.clf()
+```
 
 
 
