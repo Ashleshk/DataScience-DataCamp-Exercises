@@ -250,6 +250,8 @@ g.plot_joint(sns.kdeplot)
 plt.show()
 plt.clf()
 ```
+![jointplot](https://github.com/Ashleshk/DataScience-DataCamp-Exercises/blob/main/Data%20Scientist%20Python/10.%20Intermediate%20Data%20Visualization%20with%20Seaborn/jointplot-0.png)
+
 
 * Build a similar plot for registered users.
 
@@ -267,7 +269,7 @@ plt.clf()
 ```
 
 
-
+![jointplot-2](https://github.com/Ashleshk/DataScience-DataCamp-Exercises/blob/main/Data%20Scientist%20Python/10.%20Intermediate%20Data%20Visualization%20with%20Seaborn/jointplot.png)
 
 
 
