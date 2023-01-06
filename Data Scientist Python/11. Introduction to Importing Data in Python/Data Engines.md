@@ -137,3 +137,26 @@ df = pd.read_sql_query("select * from Employee where EmployeeId >=6 order by Bir
 print(df.head())
 
 ```
+
+## Joining table in python
+
+```python
+# Open engine in context manager
+# Perform query and save results to DataFrame: df
+with engine.connect() as con:
+    df = pd.read_sql_query("SELECT Title, Name FROM Album INNER JOIN Artist on Album.ArtistID = Artist.ArtistID", engine)
+print(df.head())
+ 
+# Execute query and store records in DataFrame: df
+df = pd.read_sql_query("select * from PlaylistTrack INNER JOIN Track on PlaylistTrack.TrackId = Track.TrackId WHERE Milliseconds < 250000",engine)
+
+# Print head of DataFrame
+print(df.head())
+print(df.head())
+
+```
+
+
+
+
+
