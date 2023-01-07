@@ -263,6 +263,198 @@ print(churn_final)
 ```
 
 
+## Working with multiple levels
+
+### Swap your SIM card
+
+```
+Out[1]:
+
+year                               2019                   2020               
+plan                            minutes voicemail data minutes voicemail data
+exited   state      city                                                     
+churn    California Los Angeles       0         1    2       1         1    5
+no_churn California Los Angeles       0         1    3       1         0    2
+churn    New York   New York          1         0    5       0         1    2
+no_churn New York   New York          1         0    4       1         0    6
+```
+
+```python
+# Switch the first and third row index levels in churn
+churn_swap = churn.swaplevel(0, 2)
+
+# Print churn_swap
+print(churn_swap)
+```
+
+```
+    year                               2019                   2020               
+    plan                            minutes voicemail data minutes voicemail data
+    city        state      exited                                                
+    Los Angeles California churn          0         1    2       1         1    5
+                           no_churn       0         1    3       1         0    2
+    New York    New York   churn          1         0    5       0         1    2
+                           no_churn       1         0    4       1         0    6
+```
+
+```py
+# Switch the first and third row index levels in churn
+churn_swap = churn.swaplevel(0, 2)
+
+# Reshape by unstacking the last row level 
+churn_unstack = churn_swap.unstack()
+
+# Print churn_unstack
+print(churn_unstack)
+```
+
+```
+year                      2019                                               2020                                           
+    plan                   minutes          voicemail           data          minutes          voicemail           data         
+    exited                   churn no_churn     churn no_churn churn no_churn   churn no_churn     churn no_churn churn no_churn
+    city        state                                                                                                           
+    Los Angeles California       0        0         1        1     2        3       1        1         1        0     5        2
+    New York    New York         1        1         0        0     5        4       0        1         1        0     2        
+```
+
+
+## Two many calls
+
+```
+year                               2019                   2020               
+plan                            minutes voicemail data minutes voicemail data
+exited   state      city                                                     
+churn    California Los Angeles       0         1    2       1         1    5
+no_churn California Los Angeles       0         1    3       1         0    2
+churn    New York   New York          1         0    5       0         1    2
+no_churn New York   New York          1         0    4       1         0    6
+```
+
+```py
+# Unstack the first and second row level of churn
+churn_unstack = churn.unstack(level=[0, 1])
+
+# Stack the resulting DataFrame using plan and year
+churn_py = churn_unstack.stack(['plan', 'year'])
+
+# Switch the first and second column levels
+churn_switch = churn_py.swaplevel(0, 1, axis=1)
+
+# Print churn_switch
+print(churn_switch)
+```
+
+```
+    state                      California New York California New York
+    exited                          churn    churn   no_churn no_churn
+    city        plan      year                                        
+    Los Angeles data      2019        2.0      NaN        3.0      NaN
+                          2020        5.0      NaN        2.0      NaN
+                minutes   2019        0.0      NaN        0.0      NaN
+                          2020        1.0      NaN        1.0      NaN
+                voicemail 2019        1.0      NaN        1.0      NaN
+                          2020        1.0      NaN        0.0      NaN
+    New York    data      2019        NaN      5.0        NaN      4.0
+                          2020        NaN      2.0        NaN      6.0
+                minutes   2019        NaN      1.0        NaN      1.0
+                          2020        NaN      0.0        NaN      1.0
+                voicemail 2019        NaN      0.0        NaN      0.0
+                          2020        NaN      1.0        NaN      0.0
+```
+
+
+
+## handling Missing values generated during Stack and Unstack
+
+```py
+# Unstack churn level and fill missing values with zero
+churn = churn.unstack(level='churn', fill_value=0)
+
+# Sort by descending voice mail plan and ascending international plan
+churn_sorted = churn.sort_index(level=['voice_mail_plan', 'international_plan'], 
+                          ascending=[False, True])
+
+# Print final DataFrame and observe pattern
+print(churn_sorted)
+```
+
+```
+                                             total_day_calls        total_night_calls       
+    churn                                              False   True             False   True
+    state international_plan voice_mail_plan                                                
+    LA    No                 Yes                     100.000    0.0            84.250    0.0
+    NY    No                 Yes                     115.000    0.0           121.000    0.0
+    LA    Yes                Yes                      71.000    0.0           101.000    0.0
+    NY    Yes                Yes                     120.000    0.0            78.000    0.0
+    LA    No                 No                      106.818  100.0            96.909  119.0
+    NY    No                 No                       90.900   95.0           100.800  101.5
+    LA    Yes                No                       78.000   69.0            90.000  104.0
+    NY    Yes                No                      109.000   87.0            99.000  113.0
+```
+
+* Reshape the churn DataFrame by stacking the type level. Then, fill the missing values generated with the value zero.
+
+```py
+# Stack the level type from churn
+churn_stack = churn.stack(level='type')
+
+# Fill the resulting missing values with zero 
+churn_fill = churn_stack.fillna(0)
+
+# Print churn_fill
+print(churn_fill)
+```
+
+```
+print(churn_fill)
+scope                 international  national
+   type                                      
+LA total_day_calls               23       0.0
+   total_night_calls             30       0.0
+NY total_day_calls                8       0.0
+   total_night_calls             34      24.0
+CA total_day_calls                8       0.0
+   total_night_calls             34      24.0
+```
+
+```py
+# Stack the level scope without dropping rows with missing values
+churn_stack = churn.stack(level='scope', dropna=False)
+
+# Fill the resulting missing values with zero
+churn_fill = churn_stack.fillna(0)
+
+# Print churn_fill
+print(churn_fill)
+```
+
+```
+    type              total_day_calls  total_night_calls
+       scope                                            
+    LA international             23.0               30.0
+       national                   0.0                0.0
+    NY international              8.0               34.0
+       national                   0.0               24.0
+    CA international              8.0               34.0
+       national                   0.0               24.0
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
