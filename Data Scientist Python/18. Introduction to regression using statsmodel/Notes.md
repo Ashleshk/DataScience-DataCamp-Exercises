@@ -410,24 +410,324 @@ plt.show()
 ```
 
 
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+# Chapter -03  Assessing model fit
+
+## Coefficient of determination
+
+```py
+# Print a summary of mdl_click_vs_impression_orig
+print(mdl_click_vs_impression_orig.summary())
+
+# Print a summary of mdl_click_vs_impression_trans
+print(mdl_click_vs_impression_trans.summary())
+
+# Print the coeff of determination for mdl_click_vs_impression_orig
+print(mdl_click_vs_impression_orig.rsquared)
+
+# Print the coeff of determination for mdl_click_vs_impression_trans
+print(mdl_click_vs_impression_trans.rsquared)
+```
+
+
+
+## Residual standard error
+
+```py
+
+# Calculate mse_orig for mdl_click_vs_impression_orig
+mse_orig = mdl_click_vs_impression_orig.mse_resid
+
+# Calculate rse_orig for mdl_click_vs_impression_orig and print it
+rse_orig =np.sqrt(mse_orig)
+print("RSE of original model: ", rse_orig)
+
+# Calculate mse_trans for mdl_click_vs_impression_trans
+mse_trans =  mdl_click_vs_impression_trans.mse_resid
+
+# Calculate rse_trans for mdl_click_vs_impression_trans and print it
+rse_trans =np.sqrt(mse_trans)
+print("RSE of transformed model: ", rse_trans)
+
+```
+
+## Drawing diagnostic plots
+
+```py
+# Plot the residuals vs. fitted values
+sns.residplot(x="n_convenience", y="price_twd_msq", data=taiwan_real_estate, lowess=True)
+plt.xlabel("Fitted values")
+plt.ylabel("Residuals")
+
+# Show the plot
+plt.show()
+
+```
+
+* Import qqplot() from statsmodels.api.
+* Create the Q-Q plot of the residuals.
+
+```py
+# Import qqplot
+from statsmodels.api import qqplot
+
+# Create the Q-Q plot of the residuals
+qqplot(data=mdl_price_vs_conv.resid, fit=True, line="45")
+ 
+# Show the plot
+plt.show()
+```
+
+
+```py
+# Preprocessing steps
+model_norm_residuals = mdl_price_vs_conv.get_influence().resid_studentized_internal
+model_norm_residuals_abs_sqrt = np.sqrt(np.abs(model_norm_residuals))
+
+# Create the scale-location plot
+sns.regplot(x=mdl_price_vs_conv.fittedvalues, y=model_norm_residuals_abs_sqrt, ci=None, lowess=True)
+plt.xlabel("Fitted values")
+plt.ylabel("Sqrt of abs val of stdized residuals")
+
+# Show the plot
+plt.show()
+```
+
+
+
+## Extracting leverage and influence
+
+
+```py
+# Create summary_info
+summary_info = mdl_price_vs_dist.get_influence().summary_frame()
+
+# Add the hat_diag column to taiwan_real_estate, name it leverage
+taiwan_real_estate["leverage"] = summary_info["hat_diag"]
+
+# Sort taiwan_real_estate by leverage in descending order and print the head
+print(taiwan_real_estate.sort_values("leverage", ascending = False).head())
+
+
+```
+
+
+```py
+# Create summary_info
+summary_info = mdl_price_vs_dist.get_influence().summary_frame()
+
+# Add the hat_diag column to taiwan_real_estate, name it leverage
+taiwan_real_estate["leverage"] = summary_info["hat_diag"]
+
+# Add the cooks_d column to taiwan_real_estate, name it cooks_dist
+taiwan_real_estate['cooks_dist' ]= summary_info['cooks_d']
+
+# Sort taiwan_real_estate by cooks_dist in descending order and print the head.
+print(taiwan_real_estate.sort_values("cooks_dist", ascending = False).head())
+```
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+# Chapter -04 : Simple Logistic Regression Modeling
+
+## Exploring the explanatory variables
+
+```py
+# Create the histograms of time_since_last_purchase split by has_churned
+sns.displot(x="time_since_last_purchase",
+col="has_churned",
+data=churn)
+
+plt.show()
+
+# Redraw the plot with time_since_first_purchase
+sns.displot(x="time_since_first_purchase",
+col="has_churned",
+data=churn)
+
+plt.show()
+```
+
+
+```py
+# Draw a linear regression trend line and a scatter plot of time_since_first_purchase vs. has_churned
+sns.regplot(x="time_since_first_purchase",
+y="has_churned", data= churn,
+            line_kws={"color": "red"})
+
+plt.show()
+```
+
+## Visualizing linear and logistic models
+
+```py
+# Draw a linear regression trend line and a scatter plot of time_since_first_purchase vs. has_churned
+sns.regplot(x="time_since_first_purchase",
+            y="has_churned",
+            data=churn, 
+            ci=None,
+            line_kws={"color": "red"})
+
+# Draw a logistic regression trend line and a scatter plot of time_since_first_purchase vs. has_churned
+sns.regplot(x="time_since_first_purchase",
+y="has_churned",
+data=churn,
+ci=None,
+logistic=True,line_kws={"color": "blue"})
+
+plt.show()
+```
+
+
+
+## Logistic regression with logit()
+
+```py
+# Import logit
+from statsmodels.formula.api import logit
+
+# Fit a logistic regression of churn vs. length of relationship using the churn dataset
+mdl_churn_vs_relationship = logit("has_churned ~ time_since_first_purchase",
+data=churn).fit()
+
+# Print the parameters of the fitted model
+print(mdl_churn_vs_relationship.params)
+```
+
+
+## Probabilities
+
+```py
+# Create prediction_data
+prediction_data = explanatory_data.assign(
+  has_churned = mdl_churn_vs_relationship.predict(explanatory_data)
+)
+
+# Print the head
+print(prediction_data.head())
+```
+
+
+```py
+
+# Create prediction_data
+prediction_data = explanatory_data.assign(
+    has_churned = mdl_churn_vs_relationship.predict(explanatory_data)
+)
+
+fig = plt.figure()
+
+# Create a scatter plot with logistic trend line
+sns.regplot(x="time_since_first_purchase",
+y="has_churned",
+data=churn,
+ci=None,
+logistic=True)
+
+# Overlay with prediction_data, colored red
+sns.scatterplot(x="time_since_first_purchase",
+y="has_churned",
+data=prediction_data,
+color="red")
+
+plt.show()
+
+```
+
+
+## Most likely outcome
+
+
+* Update prediction_data to add a column of the most likely churn outcome, most_likely_outcome.
+* Print the first five lines of prediction_data.
+
+```py
+# Update prediction data by adding most_likely_outcome
+prediction_data["most_likely_outcome"] = np.round(prediction_data["has_churned"])
+# Print the head
+print(prediction_data.head())
+```
+
+
+* The code for creating a scatter plot with logistic trend line has been added from a previous exercise.
+* Overlay the plot with prediction_data with red data points, with most_likely_outcome on the y-axis.
+
+```py
+# Update prediction data by adding most_likely_outcome
+prediction_data["most_likely_outcome"] = np.round(prediction_data["has_churned"])
+
+fig = plt.figure()
+
+# Create a scatter plot with logistic trend line (from previous exercise)
+sns.regplot(x="time_since_first_purchase",
+            y="has_churned",
+            data=churn,
+            ci=None,
+            logistic=True)
+
+# Overlay with prediction_data, colored red
+sns.scatterplot(x="time_since_first_purchase",
+y="most_likely_outcome",
+data=prediction_data,
+color="red")
+
+plt.show()
+```
+
+## Odds ratio
+
+```py
+# Update prediction data with odds_ratio
+prediction_data["odds_ratio"] = prediction_data["has_churned"] /
+                            (1 - prediction_data["has_churned"])
+
+# Print the head
+print(prediction_data.head())
+```
+
+```py
+# Update prediction data with odds_ratio
+prediction_data["odds_ratio"] = prediction_data["has_churned"] / (1 - prediction_data["has_churned"])
+
+fig = plt.figure()
+
+# Create a line plot of odds_ratio vs time_since_first_purchase
+sns.lineplot(x="time_since_first_purchase",
+y="odds_ratio",
+data=prediction_data)
+
+# Add a dotted horizontal line at odds_ratio = 1
+plt.axhline(y=1, linestyle="dotted")
+
+plt.show()
+```
 
 
 
 
 
+## Log odds ratio
 
+```py
+# Update prediction data with log_odds_ratio
+prediction_data["log_odds_ratio"] = np.log(prediction_data["odds_ratio"])
 
+fig = plt.figure()
 
+# Update the line plot: log_odds_ratio vs. time_since_first_purchase
+sns.lineplot(x="time_since_first_purchase",
+             y="log_odds_ratio",
+             data=prediction_data)
 
+# Add a dotted horizontal line at log_odds_ratio = 0
+plt.axhline(y=0, linestyle="dotted")
 
-
-
-
-
-
-
-
-
+plt.show()
+```
 
 
 
