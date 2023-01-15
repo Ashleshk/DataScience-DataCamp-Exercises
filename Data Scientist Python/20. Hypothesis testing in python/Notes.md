@@ -256,6 +256,140 @@ print(pairwise_results)
 # Chapter - 03: Proportion Tests
 1. One-sample proportion tests
 
+```py
+# Hypothesize that the proportion of late shipments is 6%
+p_0 = 0.06
+
+# Calculate the sample proportion of late shipments
+p_hat = (late_shipments['late'] == "Yes").mean()
+
+# Calculate the sample size
+n = len(late_shipments)
+
+# Calculate the numerator and denominator of the test statistic
+numerator = p_hat - p_0
+denominator = np.sqrt(p_0 * (1 - p_0) / n)
+
+# Calculate the test statistic
+z_score = numerator / denominator
+
+# Calculate the p-value from the z-score
+p_value = 1 - norm.cdf(z_score)
+
+
+# Print the p-value
+print(p_value)
+```
+
+
+2. Two-sample proportion tests
+
+* Test of two proportions
+    * You may wonder if the amount paid for freight affects whether or not the shipment was late. Recall that in the late_shipments dataset, whether or not the shipment was late is stored in the late column. Freight costs are stored in the freight_cost_group column, and the categories are "expensive" and "reasonable".
+
+    * The hypotheses to test, with "late" corresponding to the proportion of late shipments for that group, 
+
+```py
+# Calculate the pooled estimate of the population proportion
+p_hat = (p_hats["reasonable"] * ns["reasonable"] + p_hats["expensive"] * ns["expensive"]) / (ns["reasonable"] + ns["expensive"])
+
+# Calculate p_hat one minus p_hat
+p_hat_times_not_p_hat = p_hat * (1 - p_hat)
+
+# Divide this by each of the sample sizes and then sum
+p_hat_times_not_p_hat_over_ns = p_hat_times_not_p_hat / ns["expensive"] + p_hat_times_not_p_hat / ns["reasonable"]
+
+# Calculate the standard error
+std_error = np.sqrt(p_hat_times_not_p_hat_over_ns)
+
+# Calculate the z-score
+z_score = (p_hats["expensive"] - p_hats["reasonable"]) / std_error
+
+# Calculate the p-value from the z-score
+p_value = 1 - norm.cdf(z_score)
+
+# Print p_value
+print(p_value)
+```
+
+3. proportions_ztest() for two samples
+That took a lot of effort to calculate the p-value, so while it is useful to see how the calculations work, it isn't practical to do in real-world analyses. For daily usage, it's better to use the statsmodels package.
+
+```py
+# Count the late column values for each freight_cost_group
+late_by_freight_cost_group = late_shipments.groupby("freight_cost_group")['late'].value_counts()
+
+# Create an array of the "Yes" counts for each freight_cost_group
+success_counts = np.array([45, 16])
+
+# Create an array of the total number of rows in each freight_cost_group
+n = np.array([545, 455])
+
+# Run a z-test on the two proportions
+stat, p_value = proportions_ztest(count = success_counts, nobs = n, 
+                                  alternative = 'larger')
+
+
+# Print the results
+print(stat, p_value)
+```
+
+4. Chi-square test of independence
+
+* The chi-square distribution
+    * Chi-square hypothesis tests rely on the chi-square distribution. Like the t-distribution, it has degrees of freedom and non-centrality parameters.
+    * The chi-square test statistic is a square number, so it is always non-negative, so only the right tail tends to be of interest.
+
+```py
+# Proportion of freight_cost_group grouped by vendor_inco_term
+props = late_shipments.groupby('vendor_inco_term')['freight_cost_group'].value_counts(normalize=True)
+
+# Convert props to wide format
+wide_props = props.unstack()
+
+# Proportional stacked bar plot of freight_cost_group vs. vendor_inco_term
+wide_props.plot(kind="bar", stacked=True)
+plt.show()
+
+# Determine if freight_cost_group and vendor_inco_term are independent
+expected, observed, stats = pingouin.chi2_independence(data = late_shipments, 
+                                                       x = 'vendor_inco_term',
+                                                       y ='freight_cost_group')
+
+# Print results
+print(stats[stats['test'] == 'pearson']) 
+```
+
+5. Visualizing goodness of fit
+* The chi-square goodness of fit test compares proportions of each level of a categorical variable to hypothesized values. Before running such a test, it can be helpful to visually compare the distribution in the sample to the hypothesized distribution.
+
+```py
+# Find the number of rows in late_shipments
+n_total = len(late_shipments)
+
+# Create n column that is prop column * n_total
+hypothesized["n"] = hypothesized["prop"] * n_total
+
+# Make a yellow bar graph of vendor_inco_term versus n
+plt.bar(incoterm_counts['vendor_inco_term'], incoterm_counts['n'], color="red", alpha=0.5)
+
+# Add blue points for hypothesized counts
+plt.bar(hypothesized['vendor_inco_term'], hypothesized['n'], color ='blue',alpha=0.5)
+plt.show()
+```
+6. Performing a goodness of fit test
+The bar plot of vendor_inco_term suggests that the distribution across the four categories was quite close to the hypothesized distribution. You'll need to perform a chi-square goodness of fit test to see whether the differences are statistically significant.
+
+```py
+# Perform a goodness of fit test on vendor_inco_term
+gof_test = chisquare(f_obs = incoterm_counts ['n'], f_exp = hypothesized['n'])
+
+
+# Print gof_test results
+print(gof_test)
+```
+
+
 # Non-Parametric Tests
 
 
