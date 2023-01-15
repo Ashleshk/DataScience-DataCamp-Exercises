@@ -387,6 +387,269 @@ print(rel_error_pct100)
 
 ## Creating a sampling distribution
 
+#### Replicating samples
+
+```py
+# Create an empty list
+mean_attritions = []
+# Loop 500 times to create 500 sample means
+for i in range(500):
+	mean_attritions.append(
+    	attrition_pop.sample(n=60)['Attrition'].mean()
+	)
+  
+# Print out the first few entries of the list
+print(mean_attritions[0:5])
+```
+
+```py
+# Create an empty list
+mean_attritions = []
+# Loop 500 times to create 500 sample means
+for i in range(500):
+	mean_attritions.append(
+    	attrition_pop.sample(n=60)['Attrition'].mean()
+	)
+
+# Create a histogram of the 500 sample means
+plt.hist(mean_attritions, bins=16)
+plt.show()
+```
+
+
+## Exact sampling distribution
+
+To quantify how the point estimate (sample statistic) you are interested in varies, you need to know all the possible values it can take and how often. That is, you need to know its distribution.
+
+The distribution of a sample statistic is called the sampling distribution. When we can calculate this exactly, rather than using an approximation, it is known as the exact sampling distribution.
+
+
+```py
+# Expand a grid representing 5 8-sided dice
+dice = expand_grid(
+  {'die1': [1, 2, 3, 4, 5, 6, 7, 8],
+   'die2': [1, 2, 3, 4, 5, 6, 7, 8],
+   'die3': [1, 2, 3, 4, 5, 6, 7, 8],
+   'die4': [1, 2, 3, 4, 5, 6, 7, 8],
+   'die5': [1, 2, 3, 4, 5, 6, 7, 8]
+  })
+
+# Add a column of mean rolls and convert to a categorical
+dice['mean_roll'] = (dice['die1'] + dice['die2'] + 
+                     dice['die3'] + dice['die4'] + 
+                     dice['die5']) / 5
+dice['mean_roll'] = dice['mean_roll'].astype('category')
+
+# Draw a bar plot of mean_roll
+dice['mean_roll'].value_counts(sort=False).plot(kind="bar")
+plt.show()
+```
+
+## Generating an approximate sampling distribution
+
+
+```py
+# Replicate the sampling code 1000 times
+sample_means_1000 = []
+for i in range(1000):
+    sample_means_1000.append(
+  		np.random.choice(list(range(1, 9)), size=5, replace=True).mean()
+    )
+
+# Draw a histogram of sample_means_1000 with 20 bins
+plt.hist(sample_means_1000, bins=20)
+plt.show()
+```
+
+
+**NOTE -  Delightful sampling distribution distinguishing! The exact sampling distribution can only be calculated if you know what the population is and if the problems are small and simple enough to compute. Otherwise, the approximate sampling distribution must be used.**
+
+
+## Standard errors and the Central Limit Theorem
+
+```py
+# Calculate the mean of the mean attritions for each sampling distribution
+mean_of_means_5 = np.mean(sampling_distribution_5)
+mean_of_means_50 = np.mean(sampling_distribution_50)
+mean_of_means_500 = np.mean(sampling_distribution_500)
+
+# Print the results
+print(mean_of_means_5)
+print(mean_of_means_50)
+print(mean_of_means_500)
+
+# Calculate the std. dev. of the mean attritions for each sampling distribution
+sd_of_means_5 = np.std(sampling_distribution_5, ddof=1)
+sd_of_means_50 = np.std(sampling_distribution_50, ddof=1)
+sd_of_means_500 = np.std(sampling_distribution_500, ddof=1)
+
+# Print the results
+print(sd_of_means_5)
+print(sd_of_means_50)
+print(sd_of_means_500)
+```
+
+***NOTE - ***
+* Regardless of sample size, the mean of the sampling distribution is a close approximation to the population mean.
+* The amount of variation in the sampling distribution is related to the amount of variation in the population and the sample size. This is another consequence of the Central Limit Theorem
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+# Chapter -04 : Introduction to bootstrapping
+
+Generating a bootstrap distribution
+The process for generating a bootstrap distribution is similar to the process for generating a sampling distribution; only the first step is different.
+
+To make a sampling distribution, you start with the population and sample without replacement. To make a bootstrap distribution, you start with a sample and sample that with replacement. After that, the steps are the same: calculate the summary statistic that you are interested in on that sample/resample, then replicate the process many times. In each case, you can visualize the distribution with a histogram.
+
+Here, spotify_sample is a subset of the spotify_population dataset. To make it easier to see how resampling works, a row index column called 'index' has been added, and only the artist name, song name, and danceability columns have been included.
+
+```py
+# Replicate this 1000 times
+mean_danceability_1000 = []
+for i in range(1000):
+	mean_danceability_1000.append(
+        np.mean(spotify_sample.sample(frac=1, replace=True)['danceability'])
+	)
+
+# Draw a histogram of the resample means
+plt.hist(mean_danceability_1000)
+plt.show()
+```
+
+
+## Comparing sampling and bootstrap distributions
+
+If the sample is not closely representative of the population, then the mean of the bootstrap distribution will not be representative of the population mean. This is less of a problem for standard errors
+
+```py
+mean_popularity_2000_samp = []
+
+# Generate a sampling distribution of 2000 replicates
+for i in range(2000):
+    mean_popularity_2000_samp.append(
+    	# Sample 500 rows and calculate the mean popularity 
+    	np.mean(spotify_population.sample(n=500)['popularity'])
+    )
+
+# Print the sampling distribution results
+print(mean_popularity_2000_samp)
+```
+
+
+```py
+mean_popularity_2000_boot = []
+
+# Generate a bootstrap distribution of 2000 replicates
+for i in range(2000):
+    mean_popularity_2000_boot.append(
+    	# Resample 500 rows and calculate the mean popularity     
+    	np.mean(spotify_sample.sample(n=500,replace=True  )['popularity'])
+    )
+
+# Print the bootstrap distribution results
+print(mean_popularity_2000_boot)
+```
+
+
+## Compare sampling and bootstrap means
+To make calculation easier, distributions similar to those calculated from the previous exercise have been included, this time using a sample size of 5000.
+
+Calculate the mean popularity in 4 ways:
+
+* Population: from spotify_population, take the mean of popularity.
+* Sample: from spotify_sample, take the mean of popularity.
+* Sampling distribution: from sampling_distribution, take its mean.
+* Bootstrap distribution: from bootstrap_distribution, take its mean.
+
+```py
+# Calculate the population mean popularity
+pop_mean = spotify_population['popularity'].mean()
+
+# Calculate the original sample mean popularity
+samp_mean = spotify_sample['popularity'].mean()
+
+# Calculate the sampling dist'n estimate of mean popularity
+samp_distn_mean = np.mean(sampling_distribution)
+
+# Calculate the bootstrap dist'n estimate of mean popularity
+boot_distn_mean = np.mean(bootstrap_distribution)
+
+# Print the means
+print([pop_mean, samp_mean, samp_distn_mean, boot_distn_mean])
+```
+
+
+**NOTE :- The sampling distribution mean is the best estimate of the true population mean; the bootstrap distribution mean is closest to the original sample mean.**
+
+## Compare sampling and bootstrap standard deviations
+
+```py
+# Calculate the population std dev popularity
+pop_sd = spotify_population['popularity'].std(ddof=0)
+
+# Calculate the original sample std dev popularity
+samp_sd = spotify_sample['popularity'].std()
+
+# Calculate the sampling dist'n estimate of std dev popularity
+samp_distn_sd = np.std(sampling_distribution,ddof=1)* np.sqrt(5000)
+
+# Calculate the bootstrap dist'n estimate of std dev popularity
+boot_distn_sd = np.std(bootstrap_distribution,ddof=1) * np.sqrt(5000)
+
+# Print the standard deviations
+print([pop_sd, samp_sd, samp_distn_sd, boot_distn_sd])
+```
+
+**NOTE-  This is an important property of the bootstrap distribution. When you don't have all the values from the population or the ability to sample multiple times, you can use bootstrapping to get a good estimate of the population standard deviation.**
+
+
+
+
+## Confidence intervals
+
+### Calculating confidence intervals
+You have learned about two methods for calculating confidence intervals: the quantile method and the standard error method. The standard error method involves using the inverse cumulative distribution function (inverse CDF) of the normal distribution to calculate confidence intervals. In this exercise, you'll perform these two methods on the Spotify data.
+
+
+Confidence intervals account for uncertainty in our estimate of a population parameter by providing a range of possible values. We are confident that the true value lies somewhere in the interval specified by that range.
+
+
+Generate a 95% confidence interval using the quantile method on the bootstrap distribution, setting the 0.025 quantile as lower_quant and the 0.975 quantile as upper_quant.
+```py
+# Generate a 95% confidence interval using the quantile method
+lower_quant = np.quantile(bootstrap_distribution, 0.025)
+upper_quant = np.quantile(bootstrap_distribution, 0.975)
+
+# Print quantile method confidence interval
+print((lower_quant, upper_quant))   
+```
+
+```py
+# Find the mean and std dev of the bootstrap distribution
+point_estimate = np.mean(bootstrap_distribution)
+standard_error = np.std(bootstrap_distribution,ddof=1)
+
+# Find the lower limit of the confidence interval
+lower_se = norm.ppf(0.025, loc=point_estimate, scale=standard_error)
+ 
+
+# Find the upper limit of the confidence interval
+upper_se =  norm.ppf(0.975, loc=point_estimate, scale=standard_error)
+
+# Print standard error method confidence interval
+print((lower_se, upper_se))
+```
+
+
+
+
+
+
+
+
 
 
 
