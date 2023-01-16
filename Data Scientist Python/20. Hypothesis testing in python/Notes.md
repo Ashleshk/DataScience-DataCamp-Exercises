@@ -389,24 +389,119 @@ gof_test = chisquare(f_obs = incoterm_counts ['n'], f_exp = hypothesized['n'])
 print(gof_test)
 ```
 
+------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Non-Parametric Tests
+#  Chapter -04: Non-Parametric Tests
+
+### Testing sample size
+
+```py
+# Count the freight_cost_group values
+counts = late_shipments['freight_cost_group'].value_counts()
+
+# Print the result
+print(counts)
+
+# Inspect whether the counts are big enough
+print((counts >= 30).all())
+
+
+# Count the late values
+counts = late_shipments['late'].value_counts()
+
+# Print the result
+print(counts)
+
+# Inspect whether the counts are big enough
+print((counts >= 10).all())
+
+
+# Count the values of freight_cost_group grouped by vendor_inco_term
+counts = late_shipments.groupby(['vendor_inco_term'])['freight_cost_group'].value_counts()
+
+# Print the result
+print(counts)
+
+# Inspect whether the counts are big enough
+print((counts >= 5).all())
+
+
+# Count the shipment_mode values
+counts = late_shipments['shipment_mode'].value_counts()
+
+# Print the result
+print(counts)
+
+# Inspect whether the counts are big enough
+print((counts >= 30).all())
+```
+
+## Non-parametric tests
+
+* The Wilcoxon signed-rank test works well when the assumptions of a paired t-test aren't met.
+
+* Wilcoxon signed-rank test
+You'll explore the difference between the proportion of county-level votes for the Democratic candidate in 2012 and 2016 to identify if the difference is significant.
+
+
+```py
+# Conduct a paired t-test on dem_percent_12 and dem_percent_16
+paired_test_results =  pingouin.ttest(x= sample_dem_data['dem_percent_12'],
+                                     y= sample_dem_data['dem_percent_16'],
+                                     paired= True,
+                                     alternative= 'greater')
 
 
 
 
+# Print paired t-test results
+print(paired_test_results)
 
 
+# Conduct a Wilcoxon test on dem_percent_12 and dem_percent_16
+wilcoxon_test_results = pingouin.wilcoxon(x = sample_dem_data['dem_percent_12'],
+                                          y = sample_dem_data['dem_percent_16'], 
+                                          alternative = 'greater') 
 
 
+# Print Wilcoxon test results
+print(wilcoxon_test_results)
+```
 
 
+## Non-parametric ANOVA and unpaired t-tests
 
+1. **Wilcoxon-Mann-Whitney**
+    * Another class of non-parametric hypothesis tests are called rank sum tests. Ranks are the positions of numeric values from smallest to largest. Think of them as positions in running events: whoever has the fastest (smallest) time is rank 1, second fastest is rank 2, and so on.
 
+    * By calculating on the ranks of data instead of the actual values, you can avoid making assumptions about the distribution of the test statistic. It's more robust in the same way that a median is more robust than a mean.
 
+    * One common rank-based test is the Wilcoxon-Mann-Whitney test, which is like a non-parametric t-test.
 
+```py
+# Choose the weight_kilograms and late columns
+weight_vs_late = late_shipments[['weight_kilograms', 'late']]
 
+# Convert weight_vs_late into wide format
+weight_vs_late_wide = weight_vs_late.pivot(columns = 'late', values = 'weight_kilograms')
 
+# Run a two-sided Wilcoxon-Mann-Whitney test on weight_kilograms vs. late
+wmw_test = pingouin.mwu(x= weight_vs_late_wide['No'], y= weight_vs_late_wide['Yes'], alternative = 'two-sided')
+
+# Print the test results
+print(wmw_test)
+```
+
+2. **Kruskal-Wallis**
+Recall that the Kruskal-Wallis test is a non-parametric version of an ANOVA test, comparing the means across multiple groups.
+
+```py
+# Run a Kruskal-Wallis test on weight_kilograms vs. shipment_mode
+kw_test = pingouin.kruskal(data = late_shipments, dv= 'weight_kilograms', between = 'freight_cost_groups')
+
+# Print the results
+print(kw_test)
+```
 
 
 
