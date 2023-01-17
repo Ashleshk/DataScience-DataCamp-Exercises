@@ -172,9 +172,169 @@ plt.show()
 
 4. The basics of linear regression
 
+Fit and predict for regression
 ```py
+# Create X and y arrays
+X = sales_df.drop("sales", axis=1).values
+y = sales_df["sales"].values
 
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Instantiate the model
+reg = LinearRegression()
+
+# Fit the model to the data
+reg.fit(X_train,y_train )
+
+# Make predictions
+y_pred = reg.predict(X_test)
+print("Predictions: {}, Actual Values: {}".format(y_pred[:2], y_test[:2]))
 ```
+
+5. Regression performance   
+
+* Now you have fit a model, reg, using all features from sales_df, and made predictions of sales values, you can evaluate performance using some common regression metrics.
+* The variables X_train, X_test, y_train, y_test, and y_pred, along with the fitted model, reg, all from the last exercise, have been preloaded for you.
+
+```py
+# Import mean_squared_error
+from sklearn.metrics import mean_squared_error
+
+# Compute R-squared
+r_squared = reg.score(X_test, y_test)
+
+# Compute RMSE
+rmse = mean_squared_error(y_test, y_pred, squared=False)
+
+# Print the metrics
+print("R^2: {}".format(r_squared))
+print("RMSE: {}".format(rmse))
+```
+
+6. Cross-validation
+*   Cross-validation for R-squared
+    * Cross-validation is a vital approach to evaluating a model. It maximizes the amount of data that is available to the model, as the model is not only trained but also tested on all of the available data.
+    * In this exercise, you will build a linear regression model, then use 6-fold cross-validation to assess its accuracy for predicting sales using social media advertising expenditure. You will display the individual score for each of the six-folds.
+
+
+```py
+# Import the necessary modules
+from sklearn.model_selection import cross_val_score, KFold
+
+# Create a KFold object
+kf = KFold(n_splits=6, shuffle=True, random_state=5)
+
+reg = LinearRegression()
+
+# Compute 6-fold cross-validation scores
+cv_scores = cross_val_score(reg, X, y, cv=kf)
+
+# Print scores
+print(cv_scores)
+```
+
+7. Analyzing cross-validation metrics
+
+
+```py
+# Print the mean
+print(np.mean(cv_results))
+
+# Print the standard deviation
+print(np.std(cv_results))
+
+# Print the 95% confidence interval
+print(np.quantile(cv_results, [0.025, 0.975]))
+```
+
+
+
+8. Regularized regression: Ridge
+Ridge regression performs regularization by computing the squared values of the model parameters multiplied by alpha and adding them to the loss function.
+
+
+```py
+# Import Ridge
+from sklearn.linear_model import Ridge
+alphas = [0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0]
+ridge_scores = []
+for alpha in alphas:
+  
+  # Create a Ridge regression model
+  ridge = Ridge(alpha=alpha)
+  
+  # Fit the data
+  ridge.fit(X_train, y_train)
+  
+  # Obtain R-squared
+  score =ridge.score(X_test, y_test)
+  ridge_scores.append(score)
+print(ridge_scores)
+```
+
+9. Lasso regression for feature importance
+
+```py
+# Import Lasso
+from sklearn.linear_model import Lasso
+
+# Instantiate a lasso regression model
+lasso = Lasso(alpha=0.3)
+
+# Fit the model to the data
+lasso.fit(X_train, y_train)
+
+# Compute and print the coefficients
+lasso_coef = lasso.predict(X_test)
+print(lasso_coef)
+plt.bar(sales_columns, lasso_coef)
+plt.xticks(rotation=45)
+plt.show()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
