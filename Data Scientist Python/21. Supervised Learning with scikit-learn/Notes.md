@@ -274,6 +274,7 @@ print(ridge_scores)
 
 9. Lasso regression for feature importance
 
+
 ```py
 # Import Lasso
 from sklearn.linear_model import Lasso
@@ -282,10 +283,10 @@ from sklearn.linear_model import Lasso
 lasso = Lasso(alpha=0.3)
 
 # Fit the model to the data
-lasso.fit(X_train, y_train)
+lasso.fit(X, y)
 
 # Compute and print the coefficients
-lasso_coef = lasso.predict(X_test)
+lasso_coef = lasso.coef_
 print(lasso_coef)
 plt.bar(sales_columns, lasso_coef)
 plt.xticks(rotation=45)
@@ -293,28 +294,131 @@ plt.show()
 ```
 
 
+*----------------------------------------------------------------------------------------------------------------------------------------------
+
+# Chapter - 03 : Fine-Tuning Your Model
+
+1. Assessing a diabetes prediction classifier
+    * In this chapter you'll work with the diabetes_df dataset introduced previously.
+
+    * The goal is to predict whether or not each individual is likely to have diabetes based on the features body mass index (BMI) and age (in years). Therefore, it is a binary classification problem. A target value of 0 indicates that the individual does not have diabetes, while a value of 1 indicates that the individual does have diabetes.
+
+    * diabetes_df has been preloaded for you as a pandas DataFrame and split into X_train, X_test, y_train, and y_test. In addition, a KNeighborsClassifier() has been instantiated and assigned to knn.
+
+```py
+# Import confusion matrix
+from sklearn.metrics import classification_report, confusion_matrix
+
+knn = KNeighborsClassifier(n_neighbors=6)
+
+# Fit the model to the training data
+knn.fit(X_train, y_train)
+
+# Predict the labels of the test data: y_pred
+y_pred = knn.predict(X_test)
+
+# Generate the confusion matrix and classification report
+print(confusion_matrix(y_test, y_pred))
+print(classification_report(y_test, y_pred))
+```
+
+
+
+2. Building a logistic regression model
+
+```py
+# Import LogisticRegression
+from sklearn.linear_model import LogisticRegression
+
+# Instantiate the model
+logreg = LogisticRegression()
+
+# Fit the model
+logreg.fit(X_train, y_train)
+
+# Predict probabilities
+y_pred_probs = logreg.predict_proba(X_test)[:, 1]
+
+print(y_pred_probs[:10])
+```
+
+3. The ROC curve
+    * Now you have built a logistic regression model for predicting diabetes status, you can plot the ROC curve to visualize how the true positive rate and false positive rate vary as the decision threshold changes.
+
+
+```py
+# Import roc_curve
+from sklearn.metrics import roc_curve
+
+# Generate ROC curve values: fpr, tpr, thresholds
+fpr, tpr, thresholds = roc_curve(y_test, y_pred_probs)
+
+plt.plot([0, 1], [0, 1], 'k--')
+
+# Plot tpr against fpr
+plt.plot(fpr, tpr)
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('ROC Curve for Diabetes Prediction')
+plt.show()
+```
+    
+
+4. ROC AUC
+    * The ROC curve you plotted in the last exercise looked promising.
+    * Now you will compute the area under the ROC curve, along with the other classification metrics you have used previously.
+    * The confusion_matrix and classification_report functions have been preloaded for you, along with the logreg model you previously built, plus X_train, X_test, y_train, y_test. Also, the model's predicted test set labels are stored as y_pred, and probabilities of test set observations belonging to the positive class stored as y_pred_probs.
+    * A knn model has also been created and the performance metrics printed in the console, so you can compare the roc_auc_score, confusion_matrix, and classification_report between the two models.
+
+```py
+# Import roc_auc_score
+from sklearn.metrics import roc_auc_score
+
+# Calculate roc_auc_score
+print(roc_auc_score(y_test, y_pred_probs))
+
+# Calculate the confusion matrix
+print(confusion_matrix(y_test, y_pred))
+
+# Calculate the classification report
+print(classification_report(y_test,y_pred))
+
+```
+
+
+
+5. Hyperparameter tuning
+ 
+5.1 Hyperparameter tuning with GridSearchCV
+
+```py
+# Import GridSearchCV
+from sklearn.model_selection import GridSearchCV
+
+# Set up the parameter grid
+param_grid = {"alpha": np.linspace(0.00001, 1, 20)}
+
+# Instantiate lasso_cv
+lasso_cv = GridSearchCV(lasso, param_grid, cv=kf)
+
+# Fit to the training data
+lasso_cv.fit(X_train, y_train)
+print("Tuned lasso paramaters: {}".format(lasso_cv.best_params_))
+print("Tuned lasso score: {}".format(lasso_cv.best_score_))
+```
+
+
+
+5.2 Hyperparameter tuning with RandomizedSearchCV
 
 
 
 
 
+```py
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```
 
 
 
