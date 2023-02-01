@@ -311,3 +311,175 @@ rings <- c(FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE)
 planets_df <- data.frame(name, type, diameter, rotation , rings)
 
 ```
+
+```r
+# Check the structure of planets_df
+str(planets_df)
+```
+
+
+```
+'data.frame':	8 obs. of  5 variables:
+ $ name    : chr  "Mercury" "Venus" "Earth" "Mars" ...
+ $ type    : chr  "Terrestrial planet" "Terrestrial planet" "Terrestrial planet" "Terrestrial planet" ...
+ $ diameter: num  0.382 0.949 1 0.532 11.209 ...
+ $ rotation: num  58.64 -243.02 1 1.03 0.41 ...
+ $ rings   : logi  FALSE FALSE FALSE FALSE TRUE TRUE ...
+```
+
+
+## Selection of data frame elements
+
+```r
+# The planets_df data frame from the previous exercise is pre-loaded
+
+# Print out diameter of Mercury (row 1, column 3)
+planets_df[1,3]
+
+# Print out data for Mars (entire fourth row)
+planets_df[4,]
+```
+
+```
+[1] 0.382
+
+planets_df[4,]
+  name               type diameter rotation rings
+4 Mars Terrestrial planet    0.532     1.03 FALSE
+```
+
+```r
+# The planets_df data frame from the previous exercise is pre-loaded
+
+# Select first 5 values of diameter column
+planets_df[1:5,"diameter"]
+```
+
+## Only planets with rings
+You will often want to select an entire column, namely one specific variable from a data frame. If you want to select all elements of the variable diameter, for example, both of these will do the trick:
+
+planets_df[,3]
+planets_df[,"diameter"]
+However, there is a short-cut. If your columns have names, you can use the $ sign:
+
+planets_df$diameter
+
+```r
+# Select the rings variable from planets_df
+rings_vector <- planets_df$rings
+  
+# Print out rings_vector
+rings_vector
+```
+
+## subset()
+Now, let us move up one level and use the function subset(). You should see the subset() function as a short-cut to do exactly the same as what you did in the previous exercises.
+
+subset(my_df, subset = some_condition)
+
+```r
+# planets_df is pre-loaded in your workspace
+
+# Select planets with diameter < 1
+subset(planets_df, subset = diameter <1)
+```
+
+## Sorting
+
+```r
+# planets_df is pre-loaded in your workspace
+
+# Use order() to create positions
+positions <-  order(planets_df$diameter)
+
+# Use positions to sort planets_df
+planets_df[positions,]
+```
+
+# List
+
+Let us create our first list! To construct a list you use the function list():
+
+my_list <- list(comp1, comp2 ...)
+
+```r
+# Vector with numerics from 1 up to 10
+my_vector <- 1:10 
+
+# Matrix with numerics from 1 up to 9
+my_matrix <- matrix(1:9, ncol = 3)
+
+# First 10 elements of the built-in data frame mtcars
+my_df <- mtcars[1:10,]
+
+# Construct list with these different elements:
+my_list <- list(my_vector, my_matrix, my_df)
+```
+
+## naming in List
+```r
+# Vector with numerics from 1 up to 10
+my_vector <- 1:10 
+
+# Matrix with numerics from 1 up to 9
+my_matrix <- matrix(1:9, ncol = 3)
+
+# First 10 elements of the built-in data frame mtcars
+my_df <- mtcars[1:10,]
+
+# Adapt list() call to give the components names
+my_list <- list(my_vector, my_matrix, my_df)
+names(my_list) <- c("vec","mat","df")
+# Print out my_list
+my_list
+```
+
+## Selecting elements from a list
+
+```r
+# shining_list is already pre-loaded in the workspace
+
+# Print out the vector representing the actors
+shining_list$actors
+
+# Print the second element of the vector representing the actors
+shining_list$actors[2]
+
+```
+
+
+# All of basics
+
+```r
+# Use the table from the exercise to define the comments and scores vectors
+scores <- c(4.6, 5, 4.8, 5, 4.2)
+comments <- c("I would watch it again", "Amazing!", "I liked it", "One of the best movies", "Fascinating plot" )
+
+# Save the average of the scores vector as avg_review
+avg_review <- mean(scores)
+
+# Combine scores and comments into the reviews_df data frame
+reviews_df = data.frame(scores,comments)
+
+# Create and print out a list, called departed_list
+departed_list = list(movie_title, movie_actors,reviews_df,avg_review)
+departed_list
+
+```
+
+```
+[[3]]
+  scores               comments
+1    4.6 I would watch it again
+2    5.0               Amazing!
+3    4.8             I liked it
+4    5.0 One of the best movies
+5    4.2       Fascinating plot
+
+[[4]]
+[1] 4.72
+
+```
+
+
+
