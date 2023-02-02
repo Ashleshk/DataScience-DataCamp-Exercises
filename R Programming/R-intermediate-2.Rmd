@@ -1,0 +1,263 @@
+# lapply
+
+Use lapply with a built-in R function
+Before you go about solving the exercises below, have a look at the documentation of the lapply() function. The Usage section shows the following expression:
+
+lapply(X, FUN, ...)
+To put it generally, lapply takes a vector or list X, and applies the function FUN to each of its members. If FUN requires additional arguments, you pass them after you've specified X and FUN (...). The output of lapply() is a list, the same length as X, where each element is the result of applying FUN on the corresponding element of X.
+
+```r
+# The vector pioneers has already been created for you
+pioneers <- c("GAUSS:1777", "BAYES:1702", "PASCAL:1623", "PEARSON:1857")
+
+# Split names from birth year
+split_math <- strsplit(pioneers, split = ":")
+
+# Convert to lowercase strings: split_low
+
+split_low <- lapply(split_math, tolower)
+# Take a look at the structure of split_low
+str(split_low)
+```
+
+```r
+# Code from previous exercise:
+pioneers <- c("GAUSS:1777", "BAYES:1702", "PASCAL:1623", "PEARSON:1857")
+split <- strsplit(pioneers, split = ":")
+split_low <- lapply(split, tolower)
+
+# Write function select_first()
+select_first <- function(x) {
+  x[1]
+}
+
+# Apply select_first() over split_low: names
+names = lapply(split_low, select_first)
+
+# Write function select_second()
+select_second <- function(x) {
+  x[2]
+}
+
+# Apply select_second() over split_low: years
+years = lapply(split_low, select_second)
+```
+
+## lapply and anonymous functions
+Writing your own functions and then using them inside lapply() is quite an accomplishment! But defining functions to use them only once is kind of overkill, isn't it? That's why you can use so-called anonymous functions in R.
+
+Previously, you learned that functions in R are objects in their own right. This means that they aren't automatically bound to a name. When you create a function, you can use the assignment operator to give the function a name. It's perfectly possible, however, to not give the function a name. This is called an anonymous function:
+
+```c
+# Named function
+triple <- function(x) { 3 * x }
+
+# Anonymous function with same implementation
+function(x) { 3 * x }
+
+# Use anonymous function inside lapply()
+lapply(list(1,2,3), function(x) { 3 * x })
+```
+
+```r
+# split_low has been created for you
+split_low
+
+# Transform: use anonymous function inside lapply
+
+names <- lapply(split_low, function(x){ x[1]})
+
+# Transform: use anonymous function inside lapply
+
+years <- lapply(split_low, function(x){x[2]})
+```
+
+## Use lapply with additional arguments
+In the video, the triple() function was transformed to the multiply() function to allow for a more generic approach. lapply() provides a way to handle functions that require more than one argument, such as the multiply() function:
+
+multiply <- function(x, factor) {
+  x * factor
+}
+lapply(list(1,2,3), multiply, factor = 3)
+On the right we've included a generic version of the select functions that you've coded earlier: select_el(). It takes a vector as its first argument, and an index as its second argument. It returns the vector's element at the specified index.
+
+```r
+# Definition of split_low
+pioneers <- c("GAUSS:1777", "BAYES:1702", "PASCAL:1623", "PEARSON:1857")
+split <- strsplit(pioneers, split = ":")
+split_low <- lapply(split, tolower)
+
+# Generic select function
+select_el <- function(x, index) {
+  x[index]
+}
+
+# Use lapply() twice on split_low: names and years
+names<-lapply(split_low, select_el, 1)
+years <- lapply(split_low, select_el, 2)
+
+```
+
+
+## Apply functions that return NULL
+In all of the previous exercises, it was assumed that the functions that were applied over vectors and lists actually returned a meaningful result. For example, the tolower() function simply returns the strings with the characters in lowercase. This won't always be the case. Suppose you want to display the structure of every element of a list. You could use the str() function for this, which returns NULL:
+
+```c
+lapply(list(1, "a", TRUE), str)
+This call actually returns a list, the same size as the input list, containing all NULL values. On the other hand calling
+
+str(TRUE)
+```
+
+on its own prints only the structure of the logical to the console, not NULL. That's because str() uses invisible() behind the scenes, which returns an invisible copy of the return value, NULL in this case. This prevents it from being printed when the result of str() is not assigned.
+
+What will the following code chunk return (split_low is already available in the workspace)? Try to reason about the result before simply executing it in the console!
+```c
+lapply(split_low, function(x) {
+  if (nchar(x[1]) > 5) {
+    return(NULL)
+  } else {
+    return(x[2])
+  }
+})
+```
+
+
+
+# sapply
+
+How to use sapply
+You can use sapply() similar to how you used lapply(). The first argument of sapply() is the list or vector X over which you want to apply a function, FUN. Potential additional arguments to this function are specified afterwards (...):
+
+sapply(X, FUN, ...)
+In the next couple of exercises, you'll be working with the variable temp, that contains temperature measurements for 7 days. temp is a list of length 7, where each element is a vector of length 5, representing 5 measurements on a given day. This variable has already been defined in the workspace: type str(temp) to see its structure.
+
+```r
+# temp has already been defined in the workspace
+
+# Use lapply() to find each day's minimum temperature
+lapply(temp, min)
+
+# Use sapply() to find each day's minimum temperature
+sapply(temp, min)
+
+# Use lapply() to find each day's maximum temperature
+lapply(temp, max)
+
+# Use sapply() to find each day's maximum temperature
+sapply(temp, max)
+```
+
+```c
+lapply(temp, min)
+[[1]]
+[1] -1
+
+[[2]]
+[1] 5
+
+[[3]]
+[1] -3
+
+[[4]]
+[1] -2
+
+[[5]]
+[1] 2
+
+[[6]]
+[1] -3
+
+[[7]]
+[1] 1
+# Use sapply() to find each day's minimum temperature
+sapply(temp, min)
+[1] -1  5 -3 -2  2 -3  1
+# Use lapply() to find each day's maximum temperature
+lapply(temp, max)
+[[1]]
+[1] 9
+
+[[2]]
+[1] 13
+
+[[3]]
+[1] 8
+
+[[4]]
+[1] 7
+
+[[5]]
+[1] 9
+
+[[6]]
+[1] 9
+
+[[7]]
+[1] 9
+# Use sapply() to find each day's maximum temperature
+sapply(temp, max)
+[1]  9 13  8  7  9  9  9
+```
+
+## sapply with your own function
+Like lapply(), sapply() allows you to use self-defined functions and apply them over a vector or a list:
+
+sapply(X, FUN, ...)
+Here, FUN can be one of R's built-in functions, but it can also be a function you wrote. This self-written function can be defined before hand, or can be inserted directly as an anonymous function.
+
+```r
+# Finish function definition of extremes_avg
+extremes_avg <- function(x) {
+  ( min(x) + max(x) ) / 2
+}
+
+# Apply extremes_avg() over temp using sapply()
+sapply(temp, extremes_avg)
+
+# Apply extremes_avg() over temp using lapply()
+lapply(temp, extremes_avg)
+```
+
+```r
+# temp is already prepared for you in the workspace
+
+# Definition of below_zero()
+below_zero <- function(x) {
+  return(x[x < 0])
+}
+
+# Apply below_zero over temp using sapply(): freezing_s
+freezing_s <- sapply(temp, below_zero)
+
+# Apply below_zero over temp using lapply(): freezing_l
+freezing_l <- lapply(temp, below_zero)
+
+# Are freezing_s and freezing_l identical?
+identical(freezing_l,freezing_s)
+```
+
+## sapply with functions that return NULL
+You already have some apply tricks under your sleeve, but you're surely hungry for some more, aren't you? In this exercise, you'll see how sapply() reacts when it is used to apply a function that returns NULL over a vector or a list.
+
+A function print_info(), that takes a vector and prints the average of this vector, has already been created for you. It uses the cat() function.
+
+
+# Vapply
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
