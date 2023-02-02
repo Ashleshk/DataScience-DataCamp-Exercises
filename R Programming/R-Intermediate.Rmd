@@ -127,3 +127,184 @@ for (char in chars) {
 
 # Print out rcount
 ```
+
+
+# Mean
+
+Check the documentation on the mean() function again:
+
+?mean
+The Usage section of the documentation includes two versions of the mean() function. The first usage,
+
+mean(x, ...)
+is the most general usage of the mean function. The 'Default S3 method', however, is:
+
+mean(x, trim = 0, na.rm = FALSE, ...)
+The ... is called the ellipsis. It is a way for R to pass arguments along without the function having to name them explicitly. The ellipsis will be treated in more detail in future courses.
+
+For the remainder of this exercise, just work with the second usage of the mean function. Notice that both trim and na.rm have default values. This makes them optional arguments.
+
+
+```r
+# The linkedin and facebook vectors have already been created for you
+linkedin <- c(16, 9, 13, 5, 2, 17, 14)
+facebook <- c(17, 7, 5, 16, 8, 13, 14)
+
+# Calculate the mean of the sum
+avg_sum = mean(linkedin + facebook)
+
+# Calculate the trimmed mean of the sum
+avg_sum_trimmed = mean(linkedin + facebook, trim =0.2)
+
+# Inspect both new variables
+print(avg_sum)
+print(avg_sum_trimmed)
+```
+
+```r
+# The linkedin and facebook vectors have already been created for you
+linkedin <- c(16, 9, 13, 5, NA, 17, 14)
+facebook <- c(17, NA, 5, 16, 8, 13, 14)
+
+# Basic average of linkedin
+mean(linkedin)
+
+# Advanced average of linkedin
+mean(linkedin, trim =0 , na.rm = TRUE)
+```
+
+```r
+# The linkedin and facebook vectors have already been created for you
+linkedin <- c(16, 9, 13, 5, NA, 17, 14)
+facebook <- c(17, NA, 5, 16, 8, 13, 14)
+
+# Calculate the mean absolute deviation
+mean(abs(linkedin- facebook), na.rm= TRUE)
+```
+
+
+# Functions
+
+```r
+# Create a function pow_two()
+pow_two <- function(x){
+    x*x
+}
+
+# Use the function
+pow_two(12)
+
+# Create a function sum_abs()
+sum_abs<- function(x,y){
+   abs(x)+abs(y)
+}
+
+# Use the function
+sum_abs(-2,3)
+```
+
+```r
+# Finish the pow_two() function
+pow_two <- function(x,print_info=TRUE) {
+  y <- x ^ 2
+  if(print_info == TRUE){
+    print(paste(x, "to the power two equals", y))
+
+  }
+  return(y)
+}
+```
+
+## Functions Example 
+
+```r
+# The linkedin and facebook vectors have already been created for you
+linkedin <- c(16, 9, 13, 5, 2, 17, 14)
+facebook <- c(17, 7, 5, 16, 8, 13, 14)
+
+# The interpret() can be used inside interpret_all()
+interpret <- function(num_views) {
+  if (num_views > 15) {
+    print("You're popular!")
+    return(num_views)
+  } else {
+    print("Try to be more visible!")
+    return(0)
+  }
+}
+
+# Define the interpret_all() function
+# views: vector with data to interpret
+# return_sum: return total number of views on popular days?
+interpret_all <- function(views, return_sum=TRUE) {
+  count <- 0
+
+  for (v in views) {
+    count <- count+ interpret(v)
+  }
+
+  if (return_sum) {
+      return(count)
+  } else {
+    return(NULL)
+  }
+}
+
+# Call the interpret_all() function on both linkedin and facebook
+interpret_all(linkedin)
+interpret_all(facebook)
+
+```
+
+
+# Packages
+
+Load an R Package
+There are basically two extremely important functions when it comes down to R packages:
+
+install.packages(), which as you can expect, installs a given package.
+library() which loads packages, i.e. attaches them to the search list on your R workspace.
+To install packages, you need administrator privileges. This means that install.packages() will thus not work in the DataCamp interface. However, almost all CRAN packages are installed on our servers. You can load them with library().
+
+In this exercise, you'll be learning how to load the ggplot2 package, a powerful package for data visualization. You'll use it to create a plot of two variables of the mtcars data frame. The data has already been prepared for you in the workspace.
+
+Before starting, execute the following commands in the console:
+
+search(), to look at the currently attached packages and
+qplot(mtcars$wt, mtcars$hp), to build a plot of two variables of the mtcars data frame.
+An error should occur, because you haven't loaded the ggplot2 package yet!
+
+```r
+# Load the ggplot2 package
+library(ggplot2)
+
+# Retry the qplot() function
+qplot(mtcars$wt, mtcars$hp)
+
+# Check out the currently attached packages again
+search()
+
+```
+
+## Different ways to load a package
+The library() and require() functions are not very picky when it comes down to argument types: both library(rjson) and library("rjson") work perfectly fine for loading a package.
+
+Have a look at some more code chunks that (attempt to) load one or more packages:
+
+```
+# Chunk 1 --valid
+library(data.table)
+require(rjson)
+
+# Chunk 2  --valid
+library("data.table")
+require(rjson)
+
+# Chunk 3 --invalid
+library(data.table)
+require(rjson, character.only = TRUE)
+
+# Chunk 4  -- invalid
+library(c("data.table", "rjson"))
+```
+
