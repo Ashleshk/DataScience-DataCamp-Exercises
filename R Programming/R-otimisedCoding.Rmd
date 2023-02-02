@@ -1,0 +1,233 @@
+# System time taken for executing a function
+
+## Comparing read times of CSV and RDS files
+One of the most common tasks we perform is reading in data from CSV files. However, for large CSV files this can be slow. One neat trick is to read in the data and save as an R binary file (rds) using saveRDS(). To read in the rds file, we use readRDS().
+
+```r
+# How long does it take to read movies from CSV?
+system.time(read.csv("movies.csv"))
+   user  system elapsed 
+  0.272   0.000   0.272 
+# How long does it take to read movies from RDS?
+system.time(readRDS("movies.rds"))
+   user  system elapsed 
+   0.08    0.00    0.08 
+``
+
+## microbenchmark package
+Using system.time() is convenient, but it does have its drawbacks when comparing multiple function calls. The microbenchmark package solves this problem with the microbenchmark() function.
+```r
+# Load the microbenchmark package
+library("microbenchmark")
+
+# Compare the two functions
+compare <- microbenchmark(read.csv("movies.csv"), 
+                          readRDS("movies.rds"), 
+                          times = 10)
+
+# Print compare
+compare
+```
+
+
+## Timing 
+1. Timings - growing a vector
+Growing a vector is one of the deadly sins in R; you should always avoid it.
+
+The growing() function defined below generates n random standard normal numbers, but grows the size of the vector each time an element is added!
+
+Note: Standard normal numbers are numbers drawn from a normal distribution with mean 0 and standard deviation 1.
+
+```r
+n <- 30000
+# Slow code
+growing <- function(n) {
+    x <- NULL
+    for(i in 1:n)
+        x <- c(x, rnorm(1))
+    x
+}
+
+# Use <- with system.time() to store the result as res_grow
+system.time(res_grow <- growing(30000))
+   user  system elapsed 
+  1.129   0.024   1.154
+```
+
+Timings - pre-allocation
+In the previous exercise, growing the vector took around 2 seconds. How long does it take when we pre-allocate the vector? The pre_allocate() function is defined below.
+```c
+n <- 30000
+# Fast code
+pre_allocate <- function(n) {
+    x <- numeric(n) # Pre-allocate
+    for(i in 1:n) 
+        x[i] <- rnorm(1)
+    x
+}
+```
+
+```r
+# Use <- with system.time() to store the result as res_allocate
+n <- 30000
+system.time(res_allocate <- pre_allocate(n))
+   user  system elapsed 
+  0.079   0.008   0.087 
+```
+
+## Importance of vectorizing your code
+
+1. Vectorized code: multiplication
+The following piece of code is written like traditional C or Fortran code. Instead of using the vectorized version of multiplication, it uses a for loop.
+
+x <- rnorm(10)
+x2 <- numeric(length(x))
+for(i in 1:10)
+    x2[i] <- x[i] * x[i]
+Your job is to make this code more "R-like" by vectorizing it. x is available for you to use.
+
+```r
+# Store your answer as x2_imp
+x2_imp <-x*x
+```
+
+2. Vectorized code: calculating a log-sum
+A common operation in statistics is to calculate the sum of log probabilities. The following code calculates the log-sum (the sum of the logs).
+
+```c
+# x is a vector of probabilities
+total <- 0
+for(i in seq_along(x)) 
+    total <- total + log(x[i])
+```    
+However this piece of code could be significantly improved using vectorized code.
+
+
+## Dataframe Vs Matrices 
+
+```r
+microbenchmark( mat[, 1], df[, 1])
+Unit: nanoseconds
+     expr  min     lq    mean median     uq    max neval cld
+ mat[, 1]  809  985.5 2147.85 1083.5 1209.5 101363   100  a 
+  df[, 1] 6635 6865.5 7554.93 6995.0 7307.5  34881   100   b
+
+
+microbenchmark(mat[1, ], df[1, ])
+Unit: microseconds
+     expr      min        lq       mean    median        uq       max neval cld
+ mat[1, ]    7.058    9.6875   25.24128   16.5685   35.3075   142.157   100  a 
+  df[1, ] 5300.327 7433.1565 8756.59930 8975.4145 9554.2385 22079.753   100   b
+```
+
+**Observations**
+- Because all values in a matrix object must be the same data type, it is much faster to access the first column of a matrix than it is to access that of a data frame.
+- Interesting! Accessing a row of a data frame is much slower than accessing that of a matrix, more so than when accessing a column from each data type. This is because the values of a column of a data frame must be the same data type, whereas that of a row doesn't have to be. Do you see the pattern here?
+
+
+## What is code profiling
+1. How does profvis profile a function? 
+A : It records the call stack at regular intervals.
+
+# Profvis in action
+Examine the code on the right that performs a standard data analysis. It loads and selects data, plots the data of interest, and adds in a regression line.
+
+
+```r
+# Load the data set
+data(movies, package = "ggplot2movies") 
+
+# Load the profvis package
+library("profvis")
+
+# Profile the following code with the profvis function
+profvis({
+  # Load and select data
+  comedies <- movies[movies$Comedy == 1, ]
+
+  # Plot data of interest
+  plot(comedies$year, comedies$rating)
+
+  # Loess regression line
+  model <- loess(rating ~ year, data = comedies)
+  j <- order(comedies$year)
+  
+  # Add fitted line to the plot
+  lines(comedies$year[j], model$fitted[j], col = "red")
+})     ## Remember the closing brackets!
+```
+
+## Change the data frame to a matrix
+
+```r
+# Load the microbenchmark package
+library("microbenchmark")
+
+# The previous data frame solution is defined
+# d() Simulates 6 dices rolls
+d <- function() {
+  data.frame(
+    d1 = sample(1:6, 3, replace = TRUE),
+    d2 = sample(1:6, 3, replace = TRUE)
+  )
+}
+
+# Complete the matrix solution
+m <- function() {
+  matrix(sample(1:6, 6, replace = TRUE), ncol=2)
+}
+
+# Use microbenchmark to time m() and d()
+microbenchmark(
+ data.frame_solution = d(),
+ matrix_solution     = m()
+)
+```
+## Calculating row sums
+
+```r
+# Example data
+rolls
+
+# Define the previous solution 
+app <- function(x) {
+    apply(x, 1, sum)
+}
+
+# Define the new solution
+r_sum <- function(x) {
+    rowSums(x)
+}
+
+# Compare the methods
+microbenchmark(
+    app_sol = app(rolls),
+    r_sum_sol = r_sum(rolls)
+)
+```
+
+## Watch the speed when using && vs &
+
+```r
+# Define the previous solution
+move <- function(is_double) {
+    if (is_double[1] & is_double[2] & is_double[3]) {
+        current <- 11 # Go To Jail
+    }
+}
+# Define the improved solution
+improved_move <- function(is_double) {
+    if (is_double[1] && is_double[2] && is_double[3]) {
+        current <- 11 # Go To Jail
+    }
+}
+# microbenchmark both solutions
+# Very occassionally the improved solution is actually a little slower
+# This is just random chance
+microbenchmark(move, improved_move, times = 1e5)
+Unit: nanoseconds
+          expr min lq     mean median uq   max neval cld
+          move  26 43 53.82151     50 56 15315 1e+05   b
+ improved_move  23 39 50.57852     47 52 32127 1e+05  a 
+```
+
