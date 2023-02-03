@@ -225,3 +225,136 @@ calc_harmonic_mean <- function(x, na.rm = FALSE) {
 calc_harmonic_mean(std_and_poor500$sector)
 
 ```
+
+
+```r
+calc_harmonic_mean <- function(x, na.rm = FALSE) {
+  assert_is_numeric(x)
+  # Check if any values of x are non-positive
+  if(any(is_non_positive(x), na.rm = TRUE)) {
+    # Throw an error
+    stop("x contains non-positive values, so the harmonic mean makes no sense.")
+  }
+  x %>%
+    get_reciprocal() %>%
+    mean(na.rm = na.rm) %>%
+    get_reciprocal()
+}
+
+# See what happens when you pass it negative numbers
+calc_harmonic_mean(std_and_poor500$pe_ratio - 20)
+```
+
+
+## Fixing function arguments
+The harmonic mean function is almost complete. However, you still need to provide some checks on the na.rm argument. This time, rather than throwing errors when the input is in an incorrect form, you are going to try to fix it.
+
+na.rm should be a logical vector with one element (that is, TRUE, or FALSE).
+
+The assertive package is loaded for you.
+
+```r
+# Update the function definition to fix the na.rm argument
+calc_harmonic_mean <- function(x, na.rm = FALSE) {
+  assert_is_numeric(x)
+  if(any(is_non_positive(x), na.rm = TRUE)) {
+    stop("x contains non-positive values, so the harmonic mean makes no sense.")
+  }
+  # Use the first value of na.rm, and coerce to logical
+  na.rm <- coerce_to(use_first(na.rm), target_class ="logical")
+  x %>%
+    get_reciprocal() %>%
+    mean(na.rm = na.rm) %>%
+    get_reciprocal()
+}
+
+# See what happens when you pass it malformed na.rm
+calc_harmonic_mean(std_and_poor500$pe_ratio, na.rm = 1:5)
+```
+
+## Returning invisibly
+When the main purpose of a function is to generate output, like drawing a plot or printing something in the console, you may not want a return value to be printed as well. In that case, the value should be invisibly returned.
+
+The base R plot function returns NULL, since its main purpose is to draw a plot. This isn't helpful if you want to use it in piped code: instead it should invisibly return the plot data to be piped on to the next step.
+
+Recall that plot() has a formula interface: instead of giving it vectors for x and y, you can specify a formula describing which columns of a data frame go on the x and y axes, and a data argument for the data frame. Note that just like lm(), the arguments are the wrong way round because the detail argument, formula, comes before the data argument.
+
+plot(y ~ x, data = data)
+
+```r
+# Define a pipeable plot fn with data and formula args
+pipeable_plot <- function(data, formula) {
+  # Call plot() with the formula interface
+  plot(formula, data=data)
+  # Invisibly return the input dataset
+  invisible(data)
+}
+
+# Draw the scatter plot of dist vs. speed again
+plt_dist_vs_speed <- cars %>% 
+  pipeable_plot(dist~speed)
+
+# Now the plot object has a value
+plt_dist_vs_speed
+```
+
+
+## Returning function with multiple values
+
+```r
+# From previous step
+groom_model <- function(model) {
+  list(
+    model = glance(model),
+    coefficients = tidy(model),
+    observations = augment(model)
+  )
+}
+
+# Call groom_model on model, assigning to 3 variables
+c(mdl,cff,obs) %<-% groom_model(model)
+
+# See these individual variables
+mdl; cff; obs
+```
+
+
+## Returning metadata
+
+```r
+pipeable_plot <- function(data, formula) {
+  plot(formula, data)
+  # Add a "formula" attribute to data
+  attr(data,"formula") <- formula
+  invisible(data)
+}
+
+# From previous exercise
+plt_dist_vs_speed <- cars %>% 
+  pipeable_plot(dist ~ speed)
+
+# Examine the structure of the result
+str(plt_dist_vs_speed)
+```
+
+## Environments 
+
+Creating and exploring environments
+Environments are used to store other variables. Mostly, you can think of them as lists, but there's an important extra property that is relevant to writing functions. Every environment has a parent environment (except the empty environment, at the root of the environment tree). This determines which variables R know about at different places in your code.
+
+Facts about the Republic of South Africa are contained in capitals, national_parks, and population.
+
+```r
+# From previous steps
+rsa_lst <- list(
+  capitals = capitals,
+  national_parks = national_parks,
+  population = population
+)
+rsa_env <- list2env(rsa_lst)
+
+# Find the parent environment of rsa_env
+parent <- parent.env(rsa_env)
+environmentName(parent)
+
+```
